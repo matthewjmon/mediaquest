@@ -1,172 +1,149 @@
 # MediaQuest
-*Full-stack iTunes media search application built with React & Node.js*
+
+Full-stack iTunes media search app built with React, Node.js, and Express.
 
 ![MediaQuest Screenshot](https://res.cloudinary.com/dyj8e4dsr/image/upload/v1763379402/itunes-app_qprhkn.png)
 
-## Description
+## Why This Project
 
-MediaQuest is a full-stack React and Node.js application for searching the iTunes Store using Apple’s iTunes Search API. It features a responsive Bootstrap UI, a Node.js/Express backend that proxies and secures API requests with JWT, and a clean separation between client and server for scalable deployment.
+MediaQuest demonstrates practical full-stack fundamentals for a junior developer role:
 
----
+- Building a responsive React UI with reusable components
+- Creating and securing backend API routes with Express + JWT
+- Integrating a third-party API (Apple iTunes Search API) through a backend proxy
+- Managing client state for search results, favourites, and UI theme
+- Structuring frontend and backend for local development and production serving
 
-**Tech Stack:** React, Node.js, Express, JWT, Bootstrap, Vite, iTunes API
+## Tech Stack
 
-![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+- Frontend: React 19, React Router, Vite, Bootstrap, React-Bootstrap
+- Backend: Node.js, Express, Axios, JSON Web Token (`jsonwebtoken`), CORS, dotenv
+- External API: Apple iTunes Search API
 
----
+## Features
 
-## Key Features
+- Debounced search input (500ms) to reduce request spam
+- Media-type filtering (`all`, `movie`, `podcast`, `music`, `audiobook`, etc.)
+- Server-issued JWT token (`/api/token`) with 1-hour expiry
+- Protected search endpoint (`/api/itunes/search`) requiring `Bearer` token
+- Results cards with artwork, artist, and formatted release date
+- Add/remove favourites with duplicate protection
+- Toast notifications for favourites actions
+- Responsive navigation (desktop sidebar + mobile navbar)
+- Light/dark mode toggle
 
-**Front-End Features:**
-- Responsive React UI styled with Bootstrap
-- Real-time search results with album art, artist, and release information
-- Session-based favourites list stored in state
+## Architecture Overview
 
-**Back-End Features:**
-- Node.js/Express server acting as a secure proxy to the iTunes API
-- JWT authorization protecting API routes
-- RESTful structure designed for scalability
+- `frontend` handles UI, routing, state, and user interactions.
+- `backend` handles token issuance, JWT verification, and iTunes API proxying.
+- In development, Vite proxies `/api/*` requests to `http://localhost:5000`.
+- In production mode, Express serves `frontend/dist` as static assets.
 
----
+## API Endpoints
 
-### My Role
-- Built responsive UI using React and Bootstrap
-- Developed Express backend with JWT-secured API proxy
-- Integrated iTunes Search API with server-side validation
-- Added favourites list using React state and session behavior
-- Deployed full-stack application on Render
+- `GET /api/token`
+  - Returns a signed JWT token: `{ "token": "..." }`
+- `POST /api/itunes/search`
+  - Requires `Authorization: Bearer <token>`
+  - Body: `{ "term": "search text", "media": "music" }`
+  - Returns an array of iTunes search results (limited to 20)
 
----
-
-### Next Steps/Enhancements
-- Persist favourites list in a database
-- Add user authentication with login/signup
-- Improve search performance with caching
-
----
-
-## Installation and Setup
+## Local Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/) (v16+ recommended)
+- Node.js 18+
+- npm
 
-- npm (bundled with Node.js)
-
-### Clone the repository
+### 1) Clone and install dependencies
 
 ```bash
-git clone https://github.com/matthewjmon/itunes-media-search-app.git
-cd itunes-media-search-app
+git clone https://github.com/matthewjmon/itunes-media-app.git
+cd itunes-media-app
+
+cd backend
+npm install
+
+cd ../frontend
+npm install
 ```
 
-## Backend Setup
+### 2) Configure environment variables
 
-**Navigate to the backend folder:**
+Create `backend/.env`:
+
+```env
+JWT_SECRET=your_secret_key_here
+PORT=5000
+```
+
+### 3) Run in development (2 terminals)
+
+Terminal 1:
 
 ```bash
 cd backend
-```
-
-**Install backend dependencies:**
-
-```bash
-npm install
-```
-
-**Create a .env file in the backend folder:**
-`JWT_SECRET=your_secret_key_here`
-`PORT=5000`
-
-**Start the backend server:**
-
-```bash
 npm start
 ```
 
-The backend will run on http://localhost:5000.
-
-## Frontend Setup
-
-Open a new terminal and navigate to the frontend folder:
+Terminal 2:
 
 ```bash
 cd frontend
-```
-
-**Install frontend dependencies:**
-
-```bash
-npm install
-```
-
-**Start the frontend development server with proxy:**
-
-```bash
 npm run dev
 ```
 
-The frontend will run on http://localhost:3000 (or another Vite-assigned port).
+Open the app at the Vite URL shown in your terminal (typically `http://localhost:5173`).
 
-## Production Build
-
-### To serve the frontend via backend:
-
-1. **From the frontend folder, run:**
+## Production Build (Serve Frontend From Backend)
 
 ```bash
+cd frontend
 npm run build
+
+cd ../backend
+npm start
 ```
 
-- This creates a dist folder with static assets.
-- The backend is configured to serve static files from ../frontend/dist.
-
-2. **Start the backend server (run npm start in the backend folder)**
-3. **Access the app at http://localhost:5000.**
+Then open `http://localhost:5000`.
 
 ## Project Structure
 
-```
-itunes-media-search-app/
-├── backend/
-│   ├── routes/
-│   │   ├── itunes.js      # iTunes API proxy with JWT authorization
-│   │   └── token.js       # JWT token issuance route
-│   ├── server.js          # Express server entry point
-│   ├── package.json       # Backend dependencies and scripts
-│   └── .env               # Environment variables (JWT_SECRET, PORT)
-└── frontend/
-    ├── src/
-    │   ├── components/    # React UI components (SearchBar, ResultsList, Navbar, etc.)
-    │   ├── App.jsx        # Main React app component
-    │   └── main.jsx       # React entry point
-    ├── public/            # Public assets (favicon, index.html)
-    ├── vite.config.js     # Vite config with backend proxy
-    └── package.json       # Frontend dependencies and scripts
+```text
+itunes-media-app/
+  backend/
+    routes/
+      itunes.js      # JWT-protected iTunes proxy route
+      token.js       # JWT token generation route
+    server.js        # Express server + static frontend serving
+  frontend/
+    src/
+      components/    # SearchBar, ResultsList, FavouritesList, Navbar
+      styles/        # Global, responsive, and component styles
+      App.jsx        # Main app logic and state
+      main.jsx       # App entry + router/bootstrap setup
+    vite.config.js   # Dev proxy config for /api
 ```
 
-## Notes
+## Known Limitations
 
-- The favourites list is stored in React state and resets after page reload.
-- JWT tokens expire after 1 hour to secure API requests.
-- No user authentication or persistent database as per project requirements.
+- No persistent database yet (favourites reset on refresh)
+- No user accounts/authentication flow (JWT is app-level, not user login)
+- No automated tests currently
 
-## Optional
+## Improvements I Would Build Next
 
-- Deploy the app by serving the production frontend build via the backend on any server or cloud platform.
-- For local testing, run backend (localhost:5000) and frontend dev server (localhost:3000) concurrently.
+- Persist favourites with a database (e.g., PostgreSQL + Prisma)
+- Add user authentication and per-user saved lists
+- Add loading skeletons and stronger error boundaries
+- Add unit/integration tests (frontend + backend)
+- Add response caching and rate limiting on the API proxy
 
-## License
+## About Me
 
-This project is provided as-is without any warranty.
+Matthew Monaghan  
+Junior Full-Stack Developer
 
-## Contact me
-
-- **Name:** Matthew Monaghan
-- **Email:** monaghanmatt18@gmail.com
-- **GitHub:** https://github.com/matthewjmon
-- **LinkedIn:** https://www.linkedin.com/in/matthew-monaghan-b9742b311/
+- Email: monaghanmatt18@gmail.com
+- GitHub: https://github.com/matthewjmon
+- LinkedIn: https://www.linkedin.com/in/matthew-monaghan-b9742b311/
